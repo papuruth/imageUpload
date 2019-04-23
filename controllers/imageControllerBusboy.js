@@ -1,27 +1,34 @@
 const path = require('path')
-var Busboy = require('busboy');
+const imageModel = require('../models/imageModel')
+const Busboy = require('busboy');
 const randomstring = require("randomstring");
-var fs = require('fs')
+const fs = require('fs')
 
 exports.uploadBusboy = function (req, res) {
     var busboy = new Busboy({ headers: req.headers });
     req.pipe(req.busboy);
     busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
-        filename = randomstring.generate() + "_" + filename;
-        var saveTo = path.join('images', filename);
+        console.log(fieldname)
+        filename = randomstring.generate(7) + "_" + filename;
+        var saveTo = path.join('./images/', filename);
         console.log('Uploading: ' + saveTo);
-        console.log(saveTo);
+        const url = '/' + filename
         file.pipe(fs.createWriteStream(saveTo));
+        const imageData = new imageModel({
+            url: url,
+            filename: filename,
+            imageType: mimetype
+        })
+        imageData.save(function(err) {
+            if (err) {
+                res.json(err);
+            }
+            res.json({
+                success: true,
+                path: url,
+                fileName: filename
+            })
+        })
     });
-    busboy.on('finish', function () {
-        console.log('Upload complete');
-
-        res.writeHead(200, { 'Connection': 'close' });
-        res.end("That's all folks!");
-    });
-    // busboy.on("close",()=>{
-
-    // })
-
     return req.pipe(busboy);
 }

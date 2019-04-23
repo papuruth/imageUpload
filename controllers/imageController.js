@@ -16,14 +16,22 @@ exports.upload = function (req, res) {
         extension = '.png'
     }
 
-    fs.writeFile("images/" + filename + extension, base64Data, 'base64', function (err, data) {
-        if (err) {
-            console.log(err);
-        } else {
+    fs.writeFile("images/" + filename + extension, base64Data, 'base64', function(err) {
+        const image = new imageModel({
+            url: '/images/' + filename + extension,
+            filename: filename + extension,
+            imageType: extension
+        })
+        image.save(function(err) {
+            if (err) {
+                res.json(err)
+            }
             res.json({
-                'filename': filename.concat(extension),
-                'path': 'images/'.concat(filename).concat(extension)
+                success: true,
+                path: '/' + filename + extension,
+                fileName: filename + extension,
+                imageType: extension
             })
-        }
-    });
+        })
+    })
 }

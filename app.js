@@ -1,7 +1,7 @@
 // Get the packages we need
 var express = require('express')
 var path = require('path')
-busboy = require('connect-busboy')
+var busboy = require('connect-busboy')
 var mongoose = require('mongoose')
 var bodyParser = require('body-parser')
 var cors = require('cors')
